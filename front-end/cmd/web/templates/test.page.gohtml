@@ -1,0 +1,157 @@
+{{template "base" .}}
+
+{{define "content" }}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1 class="mt-5">Test microservices</h1>
+                <hr>
+                <a id="brokerBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Broker Service</a>
+                <a id="authBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Authentication Service</a>
+                <a id="loggerBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Logger Service</a>
+                <a id="mailBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Mailer Service</a>
+
+                <div id="output" class="mt-5" style="outline: 1px solid silver; padding: 2em;">
+                    <span class="text-muted">Output shows here...</span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h4 class="mt-5">Sent</h4>
+                <div class="mt-1" style="outline: 1px solid silver; padding: 2em;">
+                    <pre id="payload"><span class="text-muted">Nothing sent yet...</span></pre>
+                </div>
+            </div>
+            <div class="col">
+                <h4 class="mt-5">Received</h4>
+                <div class="mt-1" style="outline: 1px solid silver; padding: 2em;">
+                    <pre id="received"><span class="text-muted">Nothing received yet...</span></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+{{end}}
+
+{{define "js"}}
+    <script>
+        let brokerBtn=document.getElementById("brokerBtn");
+        let authBtn=document.getElementById("authBtn");
+        let loggerBtn=document.getElementById("loggerBtn");
+        let mailBtn=document.getElementById("mailBtn");
+        let output=document.getElementById("output");
+        let send=document.getElementById("payload");
+        let received=document.getElementById("received");
+
+        brokerBtn.addEventListener("click",e=>{
+        const body={
+        method:'POST',
+        body:JSON.stringify({ username: 'example' })
+        }
+           fetch('http:\/\/localhost:8081/',body)
+           .then(res=>res.json())
+           .then(data=>{
+           send.innerHTML='empty POST body';
+           received.innerHTML=JSON.stringify(data,undefined,4);
+           if(data.error){
+              console.log(data.message)
+             }
+           else{
+               output.innerHTML=`<br><strong>Response from broker service </strong>:${data.message}`;
+             }
+           })
+           .catch(err=>console.log(err))
+        })
+
+        authBtn.addEventListener("click",e => {
+        const sent=JSON.stringify({
+        action:"auth",
+        auth:{ email: "admin@example.com",password:"verysecret"}
+            }
+        )
+        const body={
+        method:'POST',
+        body:sent,
+        headers:{
+        'Content-Type':'application/json'
+            }
+        }
+        console.log(body)
+           fetch('http:\/\/localhost:8081/handle',body)
+           .then(res=>{console.log(res)
+           return res.json()}).catch(err=>console.log(err))
+           .then(data=>{
+           send.innerHTML=sent;
+           received.innerHTML=JSON.stringify(data,undefined,4);
+           if(data.error){
+              console.log(data.message)
+             }
+           else{
+               output.innerHTML=`<br><strong>Response from Auth service through broker </strong>:${data.message}`;
+             }
+           })
+           .catch(err=>console.log(err))
+        })
+
+        loggerBtn.addEventListener("click",e => {
+        const sent=JSON.stringify({
+        action:"log",
+        Log:{ name: "admin@example.com",data:"verysecret"}
+            }
+        )
+        const body={
+        method:'POST',
+        body:sent,
+        headers:{
+        'Content-Type':'application/json'
+            }
+        }
+        console.log(body)
+           fetch('http:\/\/localhost:8081/handle',body)
+           .then(res=>{console.log(res)
+           return res.json()}).catch(err=>console.log(err))
+           .then(data=>{
+           send.innerHTML=sent;
+           received.innerHTML=JSON.stringify(data,undefined,4);
+           if(data.error){
+              console.log(data.message)
+             }
+           else{
+               output.innerHTML=`<br><strong>Response from Logger service through broker </strong>:${data.message}`;
+             }
+           })
+           .catch(err=>console.log(err))
+        })
+
+        mailBtn.addEventListener("click",e => {
+        const sent=JSON.stringify({
+        action:"mail",
+        mail:{ from: "admin@example.com",to:"super@admin.com",subject:"testing mail service",message:"Hey Super i'm sending this mail to confirm that our mailing service is working"}
+            }
+        )
+        const body={
+        method:'POST',
+        body:sent,
+        headers:{
+        'Content-Type':'application/json'
+            }
+        }
+        console.log(body)
+           fetch('http:\/\/localhost:8081/handle',body)
+           .then(res=>{console.log(res)
+           return res.json()}).catch(err=>console.log(err))
+           .then(data=>{
+           send.innerHTML=sent;
+           received.innerHTML=JSON.stringify(data,undefined,4);
+           if(data.error){
+              console.log(data.message)
+             }
+           else{
+               output.innerHTML=`<br><strong>Response from Logger service through broker </strong>:${data.message}`;
+             }
+           })
+           .catch(err=>console.log(err))
+        })
+
+    </script>
+{{end}}
