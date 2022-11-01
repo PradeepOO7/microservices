@@ -4,3 +4,11 @@ go.sum
 *.exe
 
 db-data
+
+#binary files
+mailerApp
+frontApp
+authApp
+loggerApp
+authApp
+listenerApp
